@@ -7,9 +7,10 @@ import classes as cla
 from Colored import cprint
 
 
+
+
 def main():
     config = std.load_config()
-
     prec_1 = config["Nachkommastellen 1"]
     prec_2 = config["Nachkommastellen 2"]
     prec_3 = config["Nachkommastellen 3"]
@@ -385,13 +386,7 @@ def main():
 
 if __name__ == "__main__":
     std.cls()
-    try:
-        menu_far = std.get_color("men")
-    except ValueError:
-        cprint("\nDie Konfigurationsdatei ist nicht erkannt worden. Sie wird auf den Standard zurückgesetzt.", "red")
-        print()
-        std.save_config_standard()
-        menu_far = std.get_color("men")
+    menu_far = std.get_color("men")
 
     y = True
 

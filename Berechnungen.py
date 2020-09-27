@@ -622,7 +622,7 @@ def punktprobe_pE(P, E, rechenweg=False, lsgweg="koor", intro=False, end=False, 
         lsgweg = std.get_lsg("lsg punktprobe p e")
         if lsgweg not in ["lgs", "koor", "passend"]:
             err_far = std.get_color("err")
-            raise cla.InputError(colored(f'Der Lösungsweg war nicht in den Vorgegebenen Typen. Das kann auf einen Fehler in der Konfiguration hindeuten ["lgs", "koor", "passend"]:\n{lsgweg}', err_far))
+            raise cla.InputError(colored(f'Der Lösungsweg war nicht in den Vorgegebenen Typen. Das kann auf einen Fehler in der Konfiguration hindeuten.\n Die passenden Typen sind "lgs", "koor", "passend":\n{lsgweg}', err_far))
         if lsgweg == "passend":
             if E.darst == "para":
                 lsgweg = "lgs"
@@ -668,7 +668,7 @@ def punktprobe_pE(P, E, rechenweg=False, lsgweg="koor", intro=False, end=False, 
 
             rv_1_darst = cla.Vektor(E.rv_1).display(prec, print_=False, print_buchst=False)
             rv_2_darst = cla.Vektor(E.rv_2).display(prec, print_=False, print_buchst=False)
-
+            
             param = [std.format_prec([f"{item} ∙" if i == 1 else "" for i in range(3)], string=True) for item in buchst[2:]]
             gleich = std.format_prec(["=" if i == 1 else "" for i in range(3)], string=True)
             plus = std.format_prec(["+" if i == 1 else "" for i in range(3)], string=True)
@@ -2043,7 +2043,7 @@ def gauss(A, b=None, zeilen=True, rechenweg=False, debugzeiten=False, intro=Fals
 
         print()
 
-    if print_lsg or rechenweg:
+    if end:
         dis.lgs_lösung(lsg, 3, color=end_far, zeilen=False)
 
     if debugzeiten:

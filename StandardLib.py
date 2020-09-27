@@ -3,7 +3,6 @@ import os
 import random
 from numbers import Number
 
-import StandardLib as std
 import classes as cla
 from Colored import colored
 from Colored import cprint
@@ -14,6 +13,7 @@ random_upper = 15
 forma_counter = 0
 
 config_ = None
+checked_config = False
 
 
 def übersetzung_zahl_string_sub(zahl):
@@ -119,11 +119,17 @@ def save_config(name, wert):
 def load_config():
     """Lädt die Konfiguration."""
     global config_
+    global checked_config
     if config_ is None:
         try:
             with open("config.json", "r") as conf:
                 config_ = json.load(conf)
         except FileNotFoundError:
+            save_config_standard()
+            with open("config.json", "r") as conf:
+                config_ = json.load(conf)
+        except json.decoder.JSONDecodeError:
+            cprint("Das JSON Format der Konfiguration stimmt nicht. Sie wird auf den Standard zurückgesetzt\n\n", "red")
             save_config_standard()
             with open("config.json", "r") as conf:
                 config_ = json.load(conf)
@@ -137,66 +143,93 @@ def load_config():
 
     changed = False
 
-    try:
-        for i, liste in enumerate(config_iter_1):
-            for item in liste:
-                if i == 0:
-                    if isinstance(config_[item], float):
-                        save_config(item, int(round(config_[item], 0)))
-                        changed = True
-
-                    elif not isinstance(config_[item], int):
-                        raise cla.InputError(colored(f"{item} ist keine Zahl: {config_[item]}", err_far.en))
-
-                elif i == 1:
-                    if config_[item] not in farben_de:
+    if checked_config is False:
+        try:
+            for i, liste in enumerate(config_iter_1):
+                for item in liste:
+                    if i == 0:
+                        # prec
                         try:
-                            wert = int(config_[item])
-                            if wert in list(range(8)):
-                                x = cla.Farbe(wert, "Zahl").de
-                                save_config(item, x)
+                            if int(config_[item]) != config_[item]:
                                 changed = True
+                                save_config(item, int(config_[item]))
 
                         except ValueError:
-                            if config_[item] in farben_en:
-                                save_config(config_[item], cla.Farbe(config_[item], "Englisch").de)
+                            raise cla.InputError(colored(f"{item} ist keine Zahl: {config_[item]}", err_far.en))
+
+                    elif i == 1:
+                        # Farben
+                        if config_[item] not in farben_de:
+                            falsche_farbe = False
+                            try:
+                                wert = int(config_[item])
+                                if wert in list(range(1, 8)):
+                                    save_config(item, cla.Farbe(wert, "Zahl").de)
+                                    changed = True
+                                else:
+                                    falsche_farbe = True
+
+                            except ValueError:
+                                if config_[item] in farben_en:
+                                    save_config(item, cla.Farbe(config_[item], "Englisch").de)
+                                    changed = True
+                                else:
+                                    falsche_farbe = True
+
+                            if falsche_farbe:
+                                raise cla.InputError(colored(f"{item} ist keine Farbe: {config_[item]}", err_far.en))
+
+                    elif i == 2:
+                        # Buchstaben
+                        if isinstance(config_[item], str):
+                            pass
+
+                        elif isinstance(config_[item], list):
+                            if len(config_[item]) != 2:
+                                raise cla.InputError(colored(f"{item} ist keine Liste mit 2 Elementen: {config_[item]}", err_far.en))
+
+                            if not isinstance(config_[item][0], str):
+                                raise cla.InputError(colored(f"{item}[0] ist kein str: {config_[item]}", err_far.en))
+
+                            if not isinstance(config_[item][1], str):
+                                raise cla.InputError(colored(f"{item}[1] ist kein str: {config_[item]}", err_far.en))
+
+                    elif i == 3:
+                        # Diverses
+                        if not isinstance(config_[item], bool):
+                            try:
+                                save_config(item, bool(config_[item]))
                                 changed = True
+                            except ValueError:
+                                raise cla.InputError(colored(f"{item} ist kein bool: {config_[item]}", err_far.en))
 
+                    elif i == 4:
+                        # Rechen / Lösungswege
+                        if "rechenweg" in item.lower():
+                            if not isinstance(config_[item], bool):
+                                try:
+                                    save_config(item, bool(config_[item]))
+                                    changed = True
+                                except ValueError:
+                                    raise cla.InputError(colored(f"{item} ist kein bool: {config_[item]}", err_far.en))
                         else:
-                            raise cla.InputError(colored(f"{item} ist keine Farbe: {config_[item]}", err_far.en))
+                            if config_[item].lower() in ["lgs", "lfp", "koor", "hilf", "geo", "hnf", "passend"]:
+                                if config_[item] not in ["lgs", "lfp", "koor", "hilf", "geo", "hnf", "passend"]:
+                                    save_config(item, config_[item].lower())
+                                    changed = True
+                            else:
+                                raise cla.InputError(colored(f'{item} ist nicht in "lgs", "lfp", "koor", "hilf", "geo", "hnf", "passend": {config_[item]}', err_far.en))
 
-                elif i == 2:
-                    if isinstance(config_[item], str):
-                        pass
+            if changed:
+                config_ = load_config()
 
-                    elif isinstance(config_[item], list):
-                        if len(config_[item]) != 2:
-                            raise cla.InputError(colored(f"{item} ist keine Liste mit 2 Elementen: {config_[item]}", err_far.en))
+        except cla.InputError as Fehler:
+            cprint("Folgender Fehler in der Konfiguration wurde erkannt:\n", err_far.en)
+            print(Fehler, end="\n\n")
+            cprint("Die Einstellungen werden nun auf den Standard zurückgesetzt\n\n", err_far.en)
+            config_ = save_config_standard()
 
-                        if not isinstance(config_[item][0], str):
-                            raise cla.InputError(colored(f"{item}[0] ist kein str: {config_[item]}", err_far.en))
-
-                        if not isinstance(config_[item][1], str):
-                            raise cla.InputError(colored(f"{item}[1] ist kein str: {config_[item]}", err_far.en))
-
-                elif i == 3:
-                    if not isinstance(config_[item], bool):
-                        raise cla.InputError(colored(f"{item} ist kein bool: {config_[item]}", err_far.en))
-
-                elif i == 4:
-                    if isinstance(config_[item], float):
-                        save_config(item, int(round(config_[item], 0)))
-                        changed = True
-
-                    elif not isinstance(config_[item], int):
-                        raise cla.InputError(colored(f"{item} ist keine Zahl: {config_[item]}", err_far.en))
-
-        if changed:
-            config_ = load_config()
-
-    except cla.InputError:
-        cprint("Die Einstellungen wurden nicht erkannt. Sie werden nun auf den Standard zurückgesetzt\n\n", err_far.en)
-        config_ = save_config_standard()
+        checked_config = True
 
     return config_
 
@@ -493,7 +526,7 @@ def get_lsg(wert):
         try:
             return out[0]
         except IndexError:
-            err_far = std.get_color("err")
+            err_far = get_color("err")
             raise cla.InputError(colored(f"Irgendwas war mit dem Input Falsch:\n{wert}", err_far))
     return out
 
@@ -511,7 +544,14 @@ def get_iter(wert):
                       "Ebene 1 Buchstabe", "Ebene 1 Parameter 1", "Ebene 1 Parameter 2",
                       "Ebene 2 Buchstabe", "Ebene 2 Parameter 1", "Ebene 2 Parameter 2",
                       "Matrix Buchstabe", "Matrix Lösungsvektor Buchstabe", "Matrix LGS Vektor"],
-                     ["Bruch", "Komma", "Gauss Pretty"]]
+                     ["Bruch", "Komma", "Gauss Pretty"],
+                     ["Rechenweg Absvec", "Rechenweg Vektor zwei Punkte", "Rechenweg Normalenvektor", "Rechenweg Normaleneinheitsvektor",
+                      "Rechenweg Skalarprodukt", "Rechenweg Lineare Abhängigkeit", "Rechenweg Umrechnung zwischen Ebenengleichungen",
+                      "Rechenweg Abstand zwischen Punkt und Gerade", "Rechenweg Abstand zwischen zwei Geraden", "Rechenweg Abstand zwischen Gerade und Ebene",
+                      "Rechenweg Abstand zwischen zwei Ebenen", "Rechenweg Gauss", "Lösungsweg Punktprobe Punkt Ebene",
+                       "Lösungsweg Schnitt Gerade Ebene", "Lösungsweg Schnitt Ebene Ebene", "Lösungsweg Abstand Punkt Gerade",
+                      "Lösungsweg Abstand Punkt Ebene", "Lösungsweg Abstand Gerade Gerade parallel", "Lösungsweg Abstand Gerade Gerade windschief",
+                      "Lösungsweg Abstand Gerade Ebene", "Lösungsweg Abstand Ebene Ebene"]]
 
     elif wert == "config_buchst":
         iter_list = ["Punkt 1 Buchstabe", "Punkt 2 Buchstabe", "Punkt 3 Buchstabe",
@@ -949,7 +989,7 @@ def dynamic_type(objekt, available_types, typ=None, instantiate=False, previous=
     if not isinstance(available_types, (list, tuple)):
         available_types = [available_types]
 
-    err_far = std.get_color("err")
+    err_far = get_color("err")
 
     for key, value in transl.items():
         if key in available_types and isinstance(objekt, value):
@@ -1446,7 +1486,7 @@ def input_nxm_mat(n=None, m=None, num=""):
         while err.error:
             print(f"Die {num} Matrix hat eine {n_for} × {m_for} Dimension")
 
-            darst = std.user_input(err, random=True, matrix_nxm=True)
+            darst = user_input(err, random=True, matrix_nxm=True)
 
         if darst in ["r", "rr"]:
             n, m = random_auffüllen(["", ""], down_lim=1)
@@ -1712,7 +1752,7 @@ def buchstabe_auffüllen(inp, auff):
 def ber_setup(rechenweg, end, ende):
     prec_int = get_prec("int")
     if rechenweg or end:
-        prec = std.get_prec(1)
+        prec = get_prec(1)
         abs_far, zwi_far = get_color(["abs", "zwi"])
         if ende:
             end_far = get_color("end")
