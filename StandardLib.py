@@ -241,7 +241,7 @@ def save_config_standard():
         "Nachkommastellen 2": 3,
         "Nachkommastellen 3": 4,
         "Nachkommastellen Parser": 2,
-        "Nachkommastellen Intern": 12,
+        "Nachkommastellen Intern": 10,
 
         "Zwischenergebnis Farbe": "Violett",
         "Zwischenergebnis Zwischen Farbe": "Cyan",
@@ -281,6 +281,7 @@ def save_config_standard():
         "Komma": False,
 
         "Gauss Pretty": False,
+        "Gauss Fast": True,
 
         "Rechenweg Absvec": False,
         "Rechenweg Vektor zwei Punkte": False,
@@ -460,10 +461,13 @@ def get_divers(wert):
             out.append(config["Komma"])
         elif item.lower() == "gauss pretty":
             out.append(config["Gauss Pretty"])
+        elif item.lower() == "gauss fast":
+            out.append(config["Gauss Fast"])
 
     if check:
         return out[0]
     return out
+
 
 
 def get_lsg(wert):
@@ -544,7 +548,7 @@ def get_iter(wert):
                       "Ebene 1 Buchstabe", "Ebene 1 Parameter 1", "Ebene 1 Parameter 2",
                       "Ebene 2 Buchstabe", "Ebene 2 Parameter 1", "Ebene 2 Parameter 2",
                       "Matrix Buchstabe", "Matrix Lösungsvektor Buchstabe", "Matrix LGS Vektor"],
-                     ["Bruch", "Komma", "Gauss Pretty"],
+                     ["Bruch", "Komma", "Gauss Pretty", "Gauss Fast"],
                      ["Rechenweg Absvec", "Rechenweg Vektor zwei Punkte", "Rechenweg Normalenvektor", "Rechenweg Normaleneinheitsvektor",
                       "Rechenweg Skalarprodukt", "Rechenweg Lineare Abhängigkeit", "Rechenweg Umrechnung zwischen Ebenengleichungen",
                       "Rechenweg Abstand zwischen Punkt und Gerade", "Rechenweg Abstand zwischen zwei Geraden", "Rechenweg Abstand zwischen Gerade und Ebene",
@@ -572,11 +576,11 @@ def get_iter(wert):
                      "Buchstabe des Vektors, der die Lösung eines LGS enthält"]
 
     elif wert == "config_divers":
-        iter_list = ["Bruch", "Komma"]
+        iter_list = ["Bruch", "Komma", "Gauss Pretty", "Gauss Fast"]
 
     elif wert == "config_divers_darst":
-        iter_list = ["Soll nach möglichkeit ein Bruch angezeigt werden?",
-                     "Soll ein Komma für Dezimalstellen angezeigt werden?"]
+        iter_list = ["Soll nach möglichkeit ein Bruch angezeigt werden?", "Soll ein Komma für Dezimalstellen angezeigt werden?", "Sollen die Pfeile des Gauss-Algorithmus Rechenwegs gebuffert werden?",
+                     "Soll der Gauss Algorithmus so schnell wie möglich berechnet werden?"]
 
     elif wert == "config_prec":
         iter_list = ["Nachkommastellen 1", "Nachkommastellen 2", "Nachkommastellen 3", "Nachkommastellen Parser",
@@ -2256,3 +2260,6 @@ def format_prec(phlist, prec=2, mehrere=True, min_length=0, ausrichtung="rechts"
         return ph[0]
 
     return ph
+
+
+gauss_fast = get_divers("gauss fast")

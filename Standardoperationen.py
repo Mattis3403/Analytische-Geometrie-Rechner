@@ -132,5 +132,5 @@ def standardoperationen_lagl(inp, operation, rechenweg, darst=False):
     elif operation == 2:
         # Gauss Algorithmus einer nxm Matrix
         A = inp[0]
-        x = ber.gauss(A, zeilen=True, rechenweg=rechenweg, intro=True, end=True, ende=True, debugzeiten=False)
+        x = ber.gauss(A, zeilen=True, rechenweg=rechenweg, intro=True, end=True, ende=True, debugzeiten=True)
         # print(x)

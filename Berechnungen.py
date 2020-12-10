@@ -11,6 +11,8 @@ from Colored import colored
 from Colored import cprint
 
 
+
+
 def skalarprodukt(u, v, rechenweg=False, intro=False, end=False, ende=False, buchst=None):
     """
 
@@ -1658,7 +1660,7 @@ def matmul(A, B, zeilen=True, rechenweg=False, intro=False, end=False, ende=Fals
         err_far = std.get_color("err")
         raise cla.InputError(colored(f"Die Matritzen haben nicht kompatibele Dimensionen: A: {colored(f'{A.dim_m}', 'yellow')} × {A.dim_n}, B: {B.dim_m} × {colored(f'{B.dim_n}', 'yellow')}", err_far))
 
-    C = cla.Matrix([[0 for _ in range(A.dim_m)] for _ in range(B.dim_n)])
+    C = cla.Matrix([[0 for _ in range(A.dim_n)] for _ in range(B.dim_m)])
 
     for i in range(A.dim_m):
         for j in range(B.dim_n):
@@ -1750,16 +1752,13 @@ def gauss(A, b=None, zeilen=True, rechenweg=False, debugzeiten=False, intro=Fals
         A.display(3, color=err_far)
         print()
         raise cla.Error(colored(f"A ist eine Nullmatrix: {A.A}", err_far))
-
+    prec_int = 10
+    pretty = False
     A = copy.deepcopy(A)
 
     # sichern von A und b für den Rechenweg
     if rechenweg:
         A_old = copy.deepcopy(A)
-
-
-    if A.zeilen is False:
-        A.transp()
 
     n = A.find_non_0()
     if n != 0:
@@ -1768,9 +1767,9 @@ def gauss(A, b=None, zeilen=True, rechenweg=False, debugzeiten=False, intro=Fals
     max_len = [0, 0, 0]
 
     # ZSF ------
-    for i in range(A.dim_n - 1):
-        for j in range(i + 1, A.dim_n):
-            n = A.find_non_0(i)
+    for i in range(A.dim_m - 1):
+        n = A.find_non_0(i)
+        for j in range(i + 1, A.dim_m):
             if round(A.A[j][n], prec_int) == 0:
                 continue
 
@@ -1779,7 +1778,7 @@ def gauss(A, b=None, zeilen=True, rechenweg=False, debugzeiten=False, intro=Fals
             zahl_1 = A.A[j][n]
             zahl_2 = A.A[i][n]
 
-            for k in range(A.dim_m):
+            for k in range(A.dim_n):
                 A.A[j][k] -= div * A.A[i][k]
 
             A.b[j] -= div * A.b[i]
@@ -1793,19 +1792,18 @@ def gauss(A, b=None, zeilen=True, rechenweg=False, debugzeiten=False, intro=Fals
                     max_len[0] = _
 
         n = A.find_non_0(sarr_start=i + 1)
-
         if n != i + 1 and n is not False:
             A.swap(i + 1, n)
 
     # ZSF erreicht ------
     zsf = time.time()
-
     # Eleminieren über den Köpfen ------
-    for i in reversed(range(1, A.dim_n)):
+    for i in reversed(range(1, A.dim_m)):
+        n = A.find_non_0(i)
+        if n is False:
+            continue
         for j in reversed(range(i)):
-            n = A.find_non_0(i)
-
-            if n is False or round(A.A[j][n], prec_int) == 0:
+            if not round(A.A[j][n], prec_int):
                 continue
 
             zahl_1 = A.A[j][n]
@@ -1813,7 +1811,7 @@ def gauss(A, b=None, zeilen=True, rechenweg=False, debugzeiten=False, intro=Fals
 
             div = A.A[j][n] / A.A[i][n]
 
-            for k in range(A.dim_m):
+            for k in range(A.dim_n):
                 A.A[j][k] -= div * A.A[i][k]
 
             A.b[j] -= div * A.b[i]
@@ -1829,16 +1827,15 @@ def gauss(A, b=None, zeilen=True, rechenweg=False, debugzeiten=False, intro=Fals
     elem = time.time()
 
     # Normieren ------
-    for i in range(A.dim_n):
+    for i in range(A.dim_m):
         n = A.find_non_0(i)
+        if n is False:
+            continue
 
         div = 1 / A.A[i][n] if A.A[i][n] else 0
         zahl_2 = A.A[i][n]
 
-        if n is False or round(div, prec_int) == 1:
-            continue
-
-        for j in range(A.dim_m):
+        for j in range(A.dim_n):
             A.A[i][j] *= div
 
         A.b[i] *= div
@@ -1852,8 +1849,7 @@ def gauss(A, b=None, zeilen=True, rechenweg=False, debugzeiten=False, intro=Fals
     # Normieren erreicht ------
 
     norm = time.time()
-
-    for i in range(A.dim_n):
+    for i in range(A.dim_m):
         if A.find_non_0(i) is False and round(A.b[i], prec_int) != 0:
             lsg = ["keine"]
             break
@@ -1866,7 +1862,7 @@ def gauss(A, b=None, zeilen=True, rechenweg=False, debugzeiten=False, intro=Fals
             pos_KV = A.pos_KV()
             pos_NKV = A.pos_NKV()
 
-            x = [[0 for j in range(A.dim_m)] for _ in range(len(pos_NKV))]
+            x = [[0 for j in range(A.dim_n)] for _ in range(len(pos_NKV))]
 
             for i, item in enumerate(pos_NKV):
                 x[i][item] = 1
@@ -1892,7 +1888,7 @@ def gauss(A, b=None, zeilen=True, rechenweg=False, debugzeiten=False, intro=Fals
                 spez_lsg = []
                 n = 0
 
-                for j in range(A.dim_m):
+                for j in range(A.dim_n):
                     if j in pos_KV:
                         spez_lsg.append(A.b[n])
                         n += 1
@@ -1908,7 +1904,7 @@ def gauss(A, b=None, zeilen=True, rechenweg=False, debugzeiten=False, intro=Fals
         A = copy.deepcopy(A_old)
 
         if intro:
-            cprint(f"Gauss Algorithmus für eine {A.dim_n} × {A.dim_m} Matrix:\n", abs_far)
+            cprint(f"Gauss Algorithmus für eine {A.dim_m} × {A.dim_n} Matrix:\n", abs_far)
 
         print("Als erstes die Zeilenstufenform erreichen:\n")
 
@@ -1919,8 +1915,8 @@ def gauss(A, b=None, zeilen=True, rechenweg=False, debugzeiten=False, intro=Fals
             print()
 
         # ZSF ------
-        for i in range(A.dim_n - 1):
-            for j in range(i + 1, A.dim_n):
+        for i in range(A.dim_m - 1):
+            for j in range(i + 1, A.dim_m):
                 n = A.find_non_0(i)
                 if round(A.A[j][n], prec_int) == 0:
                     continue
@@ -1930,7 +1926,7 @@ def gauss(A, b=None, zeilen=True, rechenweg=False, debugzeiten=False, intro=Fals
                 zahl_1 = A.A[j][n]
                 zahl_2 = A.A[i][n]
 
-                for k in range(A.dim_m):
+                for k in range(A.dim_n):
                     A.A[j][k] -= div * A.A[i][k]
 
                 A.b[j] -= div * A.b[i]
@@ -1964,7 +1960,7 @@ def gauss(A, b=None, zeilen=True, rechenweg=False, debugzeiten=False, intro=Fals
         print(colored("Jetzt die Köpfe über den Zeilen eliminieren:\n", abs_far))
 
         # Eleminieren über den Köpfen ------
-        for i in reversed(range(1, A.dim_n)):
+        for i in reversed(range(1, A.dim_m)):
             for j in reversed(range(i)):
                 n = A.find_non_0(i)
 
@@ -1976,7 +1972,7 @@ def gauss(A, b=None, zeilen=True, rechenweg=False, debugzeiten=False, intro=Fals
                 zahl_1 = A.A[j][n]
                 zahl_2 = A.A[i][n]
 
-                for k in range(A.dim_m):
+                for k in range(A.dim_n):
                     A.A[j][k] -= div * A.A[i][k]
 
                 A.b[j] -= div * A.b[i]
@@ -1995,7 +1991,7 @@ def gauss(A, b=None, zeilen=True, rechenweg=False, debugzeiten=False, intro=Fals
         print(colored("Jetzt die Köpfe Normieren:\n", abs_far))
 
         # Normieren ------
-        for i in range(A.dim_n):
+        for i in range(A.dim_m):
             n = A.find_non_0(i)
 
             div = 1 / A.A[i][n] if A.A[i][n] else 0
@@ -2005,7 +2001,7 @@ def gauss(A, b=None, zeilen=True, rechenweg=False, debugzeiten=False, intro=Fals
 
             zahl_2 = A.A[i][n]
 
-            for j in range(A.dim_m):
+            for j in range(A.dim_n):
                 A.A[i][j] *= div
 
             A.b[i] *= div
@@ -2023,7 +2019,7 @@ def gauss(A, b=None, zeilen=True, rechenweg=False, debugzeiten=False, intro=Fals
         A.display(prec, color=zwi_far)
 
         lgs_list = copy.deepcopy(A.A)
-        for i in range(A.dim_n):
+        for i in range(A.dim_m):
             lgs_list[i].append(A.b[i])
 
         if lsg[0] != "keine":
@@ -2054,14 +2050,70 @@ def gauss(A, b=None, zeilen=True, rechenweg=False, debugzeiten=False, intro=Fals
 
         print("\n")
         print(f"Gesamt: {time.time() - start:.5f}s")
-        print(lsg)
+        # print(lsg)
 
     return lsg
 
 
 # /Gauss-----------------------------------
 
+import numpy as np
+import multiprocessing as mp
+import random
+from itertools import product
+
+# Zeiten:
+
+# Alles mit 50 times
+
+# Mit Checks
+# 50x50:   0.440s
+# 75x75:   1.097s
+# 100x100: 1.968s
+# 200x200: 8.595s
+# 500x500: 65.979s
+
+
+# Ohne Checks
+# 50x50:   0.208s     - 2.115
+# 75x75:   0.436s     - 2.516
+# 100x100: 0.801s     - 2.456
+# 200x200: 4.310s     - 1.994
+# 500x500: 39.803s    - 1.401
+
+# Mit .find_non_0() - kein std.
+# 50x50:   0.126s    - 1.650
+# 75x75:   0.323s    - 1.349
+# 100x100: 0.612s    - 1.308
+# 200x200: 3.511s    - 1.227
+# 500x500: 35.429s   - 1.123
+
+# Nur round()
+# 50x50:   0.108s    - 1.166
+# 75x75:   0.305s    - 1.059
+# 100x100: 0.549s    - 1.114
+# 200x200: 3.493s    - 1.005
+# 500x500: 33.102s   - 1.070
+
+# Mit n = find in for i
+# 50x50:   0.071s    - 1.521
+# 75x75:   0.178s    - 1.713
+# 100x100: 0.339s    - 1.619
+# 200x200: 2.216s    - 1.576
+# 500x500: 21.880s   - 1.512
+
+# Total 3x Speed Increase
+
+
+def gauss_helper(i):
+    dim = [100] * 2
+    A = [[random.randint(-99, 99) for i in range(dim[0])] for i in range(dim[1])]
+    b = [random.randint(-99, 99) for i in range(dim[1])]
+
+    s = time.time()
+    gauss(A, b)
+    e = time.time()
+    return e - s
 
 if __name__ == '__main__':
-    X = cla.Ebene([[1, 2, 3], [4, 5, 6], [7, 8, 9]], pfeil=True)
-    X.display(3, darst="norm")
+    gauss([[0.06790411533964136, 0.7331442598634766, 0.9363089659781061], [0.4144499603460755, 0.5231945301032043, 0.3244817152164078], [0.8002142324278755, 0.128618711629355, 0.48666467474307085]], [0.8923054049385399, 0.6216386857726048, 0.5547118660379878], rechenweg="force", end=True)

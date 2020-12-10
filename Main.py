@@ -151,20 +151,22 @@ def main():
                     einst = std.user_input(err, max_amount=i)
 
                 err.error = True
+                while err.error:
+                    cprint("Ja oder Nein?", men_far.en)
+
+                    wert = std.user_input(err, string=True, ja=True, nein=True)
 
                 if einst == 1:
-                    while err.error:
-                        cprint("Ja oder Nein?", men_far.en)
-
-                        wert = std.user_input(err, string=True, ja=True, nein=True)
                     std.save_config("Bruch", wert)
 
                 elif einst == 2:
-                    while err.error:
-                        cprint("Ja oder Nein?", men_far.en)
-
-                        wert = std.user_input(err, string=True, ja=True, nein=True)
                     std.save_config("Komma", wert)
+
+                elif einst == 3:
+                    std.save_config("Gauss Pretty", wert)
+
+                elif einst == 4:
+                    std.save_config("Gauss Fast", wert)
 
             elif einst == 5:
                 while err.error:

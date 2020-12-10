@@ -164,15 +164,14 @@ class Farbe:
             self.en = "white"
             self.za = 7
 
+import time
 
 class Matrix:
     """
     Class für Matritzen.
-    Joa... dim_n und dim_m sind vertauscht... Keine Ahnung wieso ich das gemacht hatte aber die Anzahl der Spalten ist dim_m und Anzahl der Zeilen dim_n...
-    Nicht andersherum
     """
 
-    def __init__(self, A, b=None, zeilen=False, A_buchst="A", b_buchst="b"):
+    def __init__(self, A, b=None, zeilen=True, A_buchst="A", b_buchst="b"):
         """
         Parameters
         ----------
@@ -182,6 +181,7 @@ class Matrix:
         A_buchst    Der Buchstabe von der Matrix
         b_buchst    Der Buchstabe von b
         """
+        std.verify_input(A, A_buchst, "matrix")
         self.A_buchst = A_buchst
         if isinstance(A, (Number, str)):
             self.A = [[A]]
@@ -212,21 +212,19 @@ class Matrix:
                     self.dim_b = len(b)
                 self.has_b = True
 
-        self.zeilen = zeilen
-
-        self.dim_n = len(self.A)
-        self.dim_m = len(self.A[0])
+        self.dim_m = len(self.A)
+        self.dim_n = len(self.A[0])
 
         if zeilen is False:
-            self.dim_n, self.dim_m = self.dim_m, self.dim_n
             self.transp()
+            self.dim_n, self.dim_m = self.dim_m, self.dim_n
 
     def swap(self, zeile_1, zeile_2):
         self.A[zeile_1], self.A[zeile_2] = self.A[zeile_2], self.A[zeile_1]
         if self.has_b:
             self.b[zeile_1], self.b[zeile_2] = self.b[zeile_2], self.b[zeile_1]
 
-    def transp(self, ändern=True):
+    def transp(self):
         """
         Transponiert die Matrix
         Parameters
@@ -237,9 +235,7 @@ class Matrix:
         -------
         None
         """
-        self.A = [[self.A[j][i] for j in range(len(self.A))] for i in range(len(self.A[0]))]
-        if ändern:
-            self.zeilen = not self.zeilen
+        self.A = [[self.A[j][i] for j in range(self.dim_m)] for i in range(self.dim_n)]
 
     def find_non_0(self, zeile=False, sarr_start=False, sarr_end=False, b=False):
         """
@@ -255,123 +251,49 @@ class Matrix:
         -------
         Number (Zeile) oder False
         """
-        err_far = std.get_color("err")
-        prec_int = std.get_prec("int")
 
-        all(std.verify_input(item, str(item), (bool, Number)) for item in [zeile, sarr_start, sarr_end])
-        std.verify_input(b, "b", bool)
-        if zeile is True:
-            raise InputError(colored(f"zeile ist True: {zeile}", err_far))
+        if std.gauss_fast:
+            err_far = "red"
+            prec_int = 10
+        else:
+            err_far = std.get_color("err")
+            prec_int = std.get_prec("int")
+            all(std.verify_input(item, str(item), (bool, Number)) for item in [zeile, sarr_start, sarr_end])
+            std.verify_input(b, "b", bool)
+            if zeile is True:
+                raise InputError(colored(f"zeile ist True: {zeile}", err_far))
 
-        if sarr_start is True:
-            raise InputError(colored(f"Subarray start ist True: {sarr_start}", err_far))
+            if sarr_start is True:
+                raise InputError(colored(f"Subarray start ist True: {sarr_start}", err_far))
 
-        if sarr_end is True:
-            raise InputError(colored(f"Subarray end ist True: {sarr_end}", err_far))
+            if sarr_end is True:
+                raise InputError(colored(f"Subarray end ist True: {sarr_end}", err_far))
 
-        if zeile and (sarr_start or sarr_end):
-            raise InputError(colored(f"zeile und subarray sind True: zeile: {zeile}, subarray start: {sarr_start}, subarray end: {sarr_end}", err_far))
+            if zeile and (sarr_start or sarr_end):
+                raise InputError(colored(f"zeile und subarray sind True: zeile: {zeile}, subarray start: {sarr_start}, subarray end: {sarr_end}", err_far))
 
-        if b is True and self.has_b is False:
-            raise InputError(colored(f"Die Matrix {self.A_buchst} hat kein b", err_far))
+            if b is True and self.has_b is False:
+                raise InputError(colored(f"Die Matrix {self.A_buchst} hat kein b", err_far))
 
-        if b is True:
-            for i, item in enumerate(self.b):
-                if round(item, prec_int) != 0:
-                    return i
+        bis = self.dim_m
+        if sarr_end is not False and sarr_end < self.dim_m:
+            bis = sarr_end
+
+        if zeile is False:
+            for j in range(self.dim_n):
+                for i in range(sarr_start, bis):
+                    if (b and self.has_b and round(self.b[i], prec_int)) or round(self.A[i][j], prec_int):
+                        return i
 
             return False
 
         else:
-            bis = self.dim_n
-            if sarr_end is not False and sarr_end <= self.dim_n:
-                bis = sarr_end
+            for i, item in enumerate(self.A[zeile] + [self.b[zeile] if b else 0]):
+                if round(item, prec_int):
+                    return i
 
-            if zeile is False:
-                for j in range(self.dim_m):
-                    for i in range(sarr_start, bis):
-                        if self.zeilen is False:
-                            i, j = j, i
-                        if round(self.A[i][j], prec_int) != 0:
-                            return i
+            return False
 
-                return False
-
-            else:
-                old_zeile = zeile
-                for j in range(self.dim_m):
-                    if self.zeilen is False:
-                        j, zeile = old_zeile, j
-
-                    if round(self.A[zeile][j], prec_int) != 0:
-                        if self.zeilen is False:
-                            j, zeile = zeile, j
-                        return j
-
-                return False
-
-    def einzige_zahl(self, zeile=False, nullzeile=True):
-        """
-        Findet heraus, ob es maximal eine Zahl in (jeder) zeile gibt.
-        Parameters
-        ----------
-        zeile       Soll eine bestimmte Zeile untersucht werden
-        nullzeile   Soll eine Nullzeile als True oder False Interpretiert werden?
-
-        Returns
-        -------
-        list if zeile is False else int
-        """
-
-        err_far = std.get_color("err")
-        prec_int = std.get_prec("int")
-
-        if not isinstance(zeile, (bool, Number)):
-            raise InputError(colored(f"zeile ist kein bool oder Zahl: {zeile}", err_far))
-
-        if zeile is True:
-            raise InputError(colored(f"zeile ist True: {zeile}", err_far))
-
-        if zeile is False:
-            out = []
-            for i in range(self.dim_n):
-                n = self.find_non_0(i)
-
-                if n is False:
-                    if nullzeile:
-                        out.append(True)
-                    else:
-                        out.append(False)
-                    continue
-
-                for j in range(n + 1, self.dim_m):
-                    if self.zeilen is False:
-                        i, j = j, i
-
-                    if round(self.A[i][j], prec_int) != 0:
-                        out.append(False)
-                        break
-
-                else:
-                    out.append(True)
-
-            return out
-
-    def anz_KV(self):
-        """
-        Findet die Anzahl der zurzeit vorhandenen Kopfvariablen in der Matrix.
-
-        Returns
-        -------
-        Anzahl der Kopfvariablen - int.
-
-        """
-        rang = 0
-        for i in range(self.dim_n):
-            if self.find_non_0(i) is not False:
-                rang += 1
-
-        return rang
 
     def pos_KV(self):
         """
@@ -382,8 +304,8 @@ class Matrix:
         """
         pos_KV = []
 
-        for i in range(self.dim_n):
-            n = self.find_non_0(i)
+        for i in range(self.dim_m):
+            n = self.find_non_0(zeile=i)
 
             if n is not False and n not in pos_KV:
                 pos_KV.append(n)
@@ -398,7 +320,7 @@ class Matrix:
         Positionen der Nichtkopfvariablen - list
         """
         pos_KV = self.pos_KV()
-        pos_NKV = [i for i in range(self.dim_m) if i not in pos_KV]
+        pos_NKV = [i for i in range(self.dim_n) if i not in pos_KV]
         return pos_NKV
 
     def __matmul__(self, A):
@@ -421,12 +343,12 @@ class Matrix:
         -------
         Liste von geprinteter Matrix
         """
-        klam = std.get_klam(self.dim_n)
+        klam = std.get_klam(self.dim_m)
         out = []
-        mitte = int(self.dim_n / 2)
+        mitte = int(self.dim_m / 2)
 
         if pfeil is False:
-            buchst_darst = ["" for _ in range(self.dim_n)]
+            buchst_darst = ["" for _ in range(self.dim_m)]
             if self.has_b:
                 buchst_darst[mitte] += "["
 
@@ -452,8 +374,8 @@ class Matrix:
 
         else:
             if overset is None:
-                pfeil = std.get_pfeil(3)
-                buchst_darst = ["" if i != mitte else pfeil for i in range(self.dim_n)]
+                pfeil = std.get_pfeil(3 if min_len_pfeil is None else min_len_pfeil)
+                buchst_darst = ["" if i != mitte else pfeil for i in range(self.dim_m)]
                 buchst_darst = std.format_prec(buchst_darst, string=True, ausrichtung="links")
 
             else:
@@ -470,40 +392,34 @@ class Matrix:
 
                 if isinstance(overset, list):
                     overset.append(pfeil)
+                    for _ in range(mitte - len(overset) + 1):
+                        overset.insert(0, "")
                     buchst_darst = std.format_prec(overset, string=True, ausrichtung="mitte")
 
                 else:
                     buchst_darst = std.format_prec([overset, pfeil], string=True, ausrichtung="mitte")
 
-                buchst_darst = [f"{item}  " for item in buchst_darst]
-
-                # buchst_darst = [f" {item}   " if i != len(buchst_darst)-1 else f"{item}  "for i, item in enumerate(buchst_darst)]
-
-            # if min_len_pfeil is not None and len(buchst_darst[0]) < min_len_pfeil:
-            #     buchst_darst = [f"{item}{' '*(min_len_pfeil - len(buchst_darst[0]))}" for item in buchst_darst]
+            buchst_darst = [f"{item}  " for item in buchst_darst]
 
         if self.has_b:
             b_darst = std.format_prec(self.b, prec, string=True)
 
-        if self.zeilen:
-            A_darst = [std.format_prec([self.A[j][i] for j in range(len(self.A))], prec, ausrichtung="rechts", string=True, string_ausrichtung="mitte") for i in range(len(self.A[0]))]
-        else:
-            A_darst = [std.format_prec([self.A[i][j] for j in range(len(self.A[0]))], prec, ausrichtung="rechts", string=True, string_ausrichtung="mitte") for i in range(len(self.A))]
+        A_darst = [std.format_prec([self.A[j][i] for j in range(len(self.A))], prec, ausrichtung="rechts", string=True, string_ausrichtung="mitte") for i in range(len(self.A[0]))]
 
-        if isinstance(buchst_darst, (list, tuple)) and len(buchst_darst) > self.dim_n:
-            for i in range(len(buchst_darst) - self.dim_n):
+        if isinstance(buchst_darst, (list, tuple)) and len(buchst_darst) > self.dim_m:
+            for i in range(len(buchst_darst) - self.dim_m):
                 out.append(f"{buchst_darst[i]}")
 
-            buchst_darst = buchst_darst[len(buchst_darst) - self.dim_n:]
+            buchst_darst = buchst_darst[len(buchst_darst) - self.dim_m:]
 
-        if isinstance(buchst_darst, (list, tuple)) and len(buchst_darst) < self.dim_n:
-            for i in range(self.dim_n - len(buchst_darst)):
+        if isinstance(buchst_darst, (list, tuple)) and len(buchst_darst) < self.dim_m:
+            for i in range(self.dim_m - len(buchst_darst)):
                 buchst_darst.append(" " * len(buchst_darst[0]))
 
-        for i in range(self.dim_n):
+        for i in range(self.dim_m):
             out_string = ""
             out_string += f"{buchst_darst[i]}{klam[0][i]}{A_darst[0][i]}"
-            for j in range(1, self.dim_m):
+            for j in range(1, self.dim_n):
                 out_string += f"  {A_darst[j][i]}"
 
             if self.has_b:
@@ -522,8 +438,10 @@ class Matrix:
 
         return out
 
+if __name__ == '__main__':
+    A = Matrix([[0.36840362789339853], [0.5106520737259224]], b=[0.6774765732353941, 0.31861152315818386])
+    A.find_non_0()
 
-# noinspection PyUnresolvedReferences
 class Ebene:
     """Class für eine Ebene."""
 
