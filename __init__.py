@@ -5,8 +5,8 @@ import time
 
 
 # sure this isn't good but I don't know how to do it better.
-from AnalytischeGeometrie.classes import *
 from AnalytischeGeometrie.StandardLib import *
+from AnalytischeGeometrie.classes import *
 from AnalytischeGeometrie.Standardoperationen import *
 
 from AnalytischeGeometrie.Colored import cprint
