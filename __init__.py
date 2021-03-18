@@ -24,7 +24,7 @@ import AnalytischeGeometrie.Display as dis
 
 
 
-from Main import main
+from AnalytischeGeometrie.Main import main
 
 if __name__ == '__main__':
     main()
