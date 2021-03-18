@@ -1331,7 +1331,7 @@ class Ebene:
                             darst.append(f"{E_darst[j]}{item}")
 
                     else:
-                        if isinstance(self.kv[j], str) or round(self.kv[j], prec_int) != 0 or koor[j]:
+                        if isinstance(self.kv[j], str) or round(self.kv[j], prec_int) != 0:
                             if any(round(item, prec_int) if isinstance(item, Number) else 1 for item in davor_list[j]) or (isinstance(einsetzen, Ebene) and schritt == 1 and j != 0):  # Kack Lösung aber keine Ahnung wie ichs sonst lösen soll
                                 if bruch:
                                     darst.append([f" {nchk[j][i]} {E_darst_abs[j][i]}{item}" if i == mitte else f"   {E_darst_abs[j][i]}{'  ' if item else ''}" for i in range(3)])
