@@ -3,9 +3,9 @@
 import random
 import time
 
-import StandardLib as std
-import Standardoperationen as stdop
-import classes as cla
+#import StandardLib as std
+#import Standardoperationen as stdop
+#import classes as cla
 from Colored import cprint
 
 
