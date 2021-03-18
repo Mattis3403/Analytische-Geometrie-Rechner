@@ -1139,6 +1139,7 @@ def schnitt(obj1, obj2, typ=None, rechenweg=False, lsgweg="lgs", intro=False, en
                 else:
                     lsgweg = "koor"
 
+
     if lsgweg == "lgs":
         diff = [a - b for a, b in zip(obj2.sv, obj1.sv)]
         if typ == ["gerade", "gerade"]:
@@ -1150,7 +1151,7 @@ def schnitt(obj1, obj2, typ=None, rechenweg=False, lsgweg="lgs", intro=False, en
         elif typ == ["ebene", "ebene"]:
             A = [obj1.rv_1, obj1.rv_2, [-_ for _ in obj2.rv_1], [-_ for _ in obj2.rv_2]]
 
-        lsg = gauss(A, diff, zeilen=False, rechenweg=False, end=True, param=["r"])
+        lsg = gauss(A, diff, zeilen=False, rechenweg=False, end=False, param=["r"])
         if lsg[0] == "eind" and (typ == ["gerade", "gerade"] or typ == ["gerade", "ebene"]):
             final_lsg = cla.Punkt(obj1.einsetzen(lsg[1][0], "parameter", return_list=True), buchst=buchst)
 
