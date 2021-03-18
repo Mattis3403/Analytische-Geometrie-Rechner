@@ -1306,15 +1306,17 @@ class Ebene:
                         E_darst_abs.append(std.format_prec([item, koor[umst]], prec[i], mehrere=False, bruch=True, absval=True))
 
             else:
-                if eval_nchk:
-                    nchk = std.negcheck(koor)
                 bruch = False
                 mitte = 0
                 if norm:
+                    if eval_nchk:
+                        nchk = std.negcheck([item/koor[umst] for item in koor])
                     E_darst = [std.format_prec(item / koor[umst] if isinstance(item, Number) else item, prec[i], string=True) for i, item in enumerate(koor)]
                     E_darst_abs = [std.format_prec(item / koor[umst] if isinstance(item, Number) else item, prec[i], absval=True, string=True) for i, item in enumerate(koor)]
 
                 else:
+                    if eval_nchk:
+                        nchk = std.negcheck(koor)
                     E_darst = [std.format_prec(item, prec[i], string=True) for i, item in enumerate(koor)]
                     E_darst_abs = [std.format_prec(item, prec[i], absval=True, string=True) for i, item in enumerate(koor)]
 

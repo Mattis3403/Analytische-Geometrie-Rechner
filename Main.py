@@ -1,3 +1,5 @@
+#!/bin/python3
+
 import random
 import time
 
@@ -5,7 +7,6 @@ import StandardLib as std
 import Standardoperationen as stdop
 import classes as cla
 from Colored import cprint
-
 
 
 
@@ -400,6 +401,6 @@ if __name__ == "__main__":
             cprint("Nochmal?", menu_far)
             error.error = True
             y = std.user_input(error, string=True, ja=True, nein=True, erlaubte_werte="")
-            if y is "":
+            if y == "":
                 y = True
         std.cls()

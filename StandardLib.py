@@ -121,18 +121,90 @@ def load_config():
     global config_
     global checked_config
     if config_ is None:
-        try:
-            with open("config.json", "r") as conf:
-                config_ = json.load(conf)
-        except FileNotFoundError:
-            save_config_standard()
-            with open("config.json", "r") as conf:
-                config_ = json.load(conf)
-        except json.decoder.JSONDecodeError:
-            cprint("Das JSON Format der Konfiguration stimmt nicht. Sie wird auf den Standard zurückgesetzt\n\n", "red")
-            save_config_standard()
-            with open("config.json", "r") as conf:
-                config_ = json.load(conf)
+        config_ = {
+            "Nachkommastellen 1": 2,
+            "Nachkommastellen 2": 3,
+            "Nachkommastellen 3": 4,
+            "Nachkommastellen Parser": 2,
+            "Nachkommastellen Intern": 10,
+
+            "Zwischenergebnis Farbe": "Violett",
+            "Zwischenergebnis Zwischen Farbe": "Cyan",
+            "Endergebnis Farbe": "Grün",
+            "Abschnitt Farbe": "Gelb",
+            "Menü Farbe": "Weiß",
+            "Error Farbe": "Rot",
+            "Eingabe Farbe": "Cyan",
+
+            "Punkt 1 Buchstabe": "P",
+            "Punkt 2 Buchstabe": "Q",
+            "Punkt 3 Buchstabe": "R",
+
+            "Vektor 1 Buchstabe": ["→", "v"],
+
+            "Vektor 2 Buchstabe": ["→", "u"],
+
+            "Gerade 1 Buchstabe": "g",
+            "Gerade 1 Parameter": "r",
+
+            "Gerade 2 Buchstabe": "h",
+            "Gerade 2 Parameter": "s",
+
+            "Ebene 1 Buchstabe": "E",
+            "Ebene 1 Parameter 1": "s",
+            "Ebene 1 Parameter 2": "t",
+
+            "Ebene 2 Buchstabe": "F",
+            "Ebene 2 Parameter 1": "u",
+            "Ebene 2 Parameter 2": "v",
+
+            "Matrix Buchstabe": "A",
+            "Matrix Lösungsvektor Buchstabe": ["→", "x"],
+            "Matrix LGS Vektor": "b",
+
+            "Bruch": True,
+            "Komma": False,
+
+            "Gauss Pretty": False,
+            "Gauss Fast": True,
+
+            "Rechenweg Absvec": False,
+            "Rechenweg Vektor zwei Punkte": False,
+            "Rechenweg Normalenvektor": False,
+            "Rechenweg Normaleneinheitsvektor": True,
+            "Rechenweg Skalarprodukt": True,
+            "Rechenweg Lineare Abhängigkeit": True,
+            "Rechenweg Umrechnung zwischen Ebenengleichungen": False,
+            "Rechenweg Abstand zwischen Punkt und Gerade": True,
+            "Rechenweg Abstand zwischen zwei Geraden": True,
+            "Rechenweg Abstand zwischen Gerade und Ebene": True,
+            "Rechenweg Abstand zwischen zwei Ebenen": True,
+            "Rechenweg Gauss": False,
+
+            "Lösungsweg Punktprobe Punkt Ebene": "lgs",  # lgs, koor
+            "Lösungsweg Schnitt Gerade Ebene": "passend",  # lgs, koor, passend
+            "Lösungsweg Schnitt Ebene Ebene": "passend",  # lgs, koor, passend
+            "Lösungsweg Abstand Punkt Gerade": "hilf",  # hilf, geo
+            "Lösungsweg Abstand Punkt Ebene": "lfp",  # hnf, lfp
+            "Lösungsweg Abstand Gerade Gerade parallel": "hilf",  # hilf, geo
+            "Lösungsweg Abstand Gerade Gerade windschief": "hnf",  # hnf, lfp
+            "Lösungsweg Abstand Gerade Ebene": "hnf",  # hnf, lfp
+            "Lösungsweg Abstand Ebene Ebene": "hnf",  # hnf, lfp
+        }
+
+        #
+        # try:
+        #     with open("config.json", "r") as conf:
+        #         config_ = json.load(conf)
+        # except FileNotFoundError:
+        #     save_config_standard()
+        #     with open("config.json", "r") as conf:
+        #         config_ = json.load(conf)
+        # except json.decoder.JSONDecodeError:
+        #     cprint("Das JSON Format der Konfiguration stimmt nicht. Sie wird auf den Standard zurückgesetzt\n\n", "red")
+        #     save_config_standard()
+        #     with open("config.json", "r") as conf:
+        #         config_ = json.load(conf)
 
     err_far = cla.Farbe(config_["Error Farbe"], "Deutsch")
 
