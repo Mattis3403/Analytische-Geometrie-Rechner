@@ -3,10 +3,10 @@
 import random
 import time
 
-#import StandardLib as std
-#import Standardoperationen as stdop
-#import classes as cla
-from Colored import cprint
+import AnalytischeGeometrie.StandardLib as std
+import AnalytischeGeometrie.Standardoperationen as stdop
+import AnalytischeGeometrie.classes as cla
+from AnalytischeGeometrie.Colored import cprint
 
 
 

@@ -3,9 +3,9 @@ import os
 import random
 from numbers import Number
 
-import classes as cla
-from Colored import colored
-from Colored import cprint
+import AnalytischeGeometrie.classes as cla
+from AnalytischeGeometrie.Colored import colored
+from AnalytischeGeometrie.Colored import cprint
 
 random_lower = -15
 random_upper = 15

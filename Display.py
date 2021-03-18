@@ -2,11 +2,11 @@ import copy
 import math
 from numbers import Number
 
-import Berechnungen as ber
-import StandardLib as std
-import classes as cla
-from Colored import colored
-from Colored import cprint
+import AnalytischeGeometrie.Berechnungen as ber
+import AnalytischeGeometrie.StandardLib as std
+import AnalytischeGeometrie.classes as cla
+from AnalytischeGeometrie.Colored import colored
+from AnalytischeGeometrie.Colored import cprint
 
 
 def skalarprodukt_ohne(g_2, h_2):

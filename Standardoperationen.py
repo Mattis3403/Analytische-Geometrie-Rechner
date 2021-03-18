@@ -1,4 +1,4 @@
-import Berechnungen as ber
+import AnalytischeGeometrie.Berechnungen as ber
 
 
 def standardoperationen(inp, operation, rechenweg, darst=None):

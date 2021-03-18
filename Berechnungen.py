@@ -4,11 +4,11 @@ import time
 from collections import deque
 from numbers import Number
 
-import Display as dis
-import StandardLib as std
-import classes as cla
-from Colored import colored
-from Colored import cprint
+import AnalytischeGeometrie.Display as dis
+import AnalytischeGeometrie.StandardLib as std
+import AnalytischeGeometrie.classes as cla
+from AnalytischeGeometrie.Colored import colored
+from AnalytischeGeometrie.Colored import cprint
 
 
 
